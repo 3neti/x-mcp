@@ -43,3 +43,19 @@ There is no self-service OAuth client registration.
 Public discovery is available at `/.well-known/x-change-mcp`. It exposes only the
 endpoint, authentication model, tool names, and access-contact policy—never client
 credentials, bearer tokens, account identity, Treasury data, or claim evidence.
+
+## Public On-Demand Issuance
+
+An optional, separate server at `/mcp/x-change/public` exposes only anonymous,
+read-only discovery, estimation, and browser-handoff tools. It never creates a
+funding order, accepts payment, reserves funds, issues a Pay Code, or returns a
+possession credential.
+
+```env
+XMCP_PUBLIC_ISSUANCE_ENABLED=true
+XMCP_PUBLIC_ISSUANCE_API_BASE_URL=https://your-host.example/api/x/v1/public-issuance
+```
+
+Its discovery document is `/.well-known/x-change-public-mcp`. Native financial
+mutations remain unavailable until a separately governed guest authorization
+contract exists.

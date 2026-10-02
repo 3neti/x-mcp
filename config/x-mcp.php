@@ -14,4 +14,11 @@ return [
     'request_timeout_seconds' => (int) env('XMCP_REQUEST_TIMEOUT', 30),
     'rate_limit_per_minute' => (int) env('XMCP_RATE_LIMIT_PER_MINUTE', 30),
     'read_retry_delays_ms' => [100, 250],
+    'public_issuance' => [
+        'enabled' => env('XMCP_PUBLIC_ISSUANCE_ENABLED', false),
+        'discovery_enabled' => env('XMCP_PUBLIC_ISSUANCE_DISCOVERY_ENABLED', true),
+        'endpoint' => env('XMCP_PUBLIC_ISSUANCE_ENDPOINT', '/mcp/x-change/public'),
+        'api_base_url' => env('XMCP_PUBLIC_ISSUANCE_API_BASE_URL'),
+        'rate_limit_per_minute' => (int) env('XMCP_PUBLIC_ISSUANCE_RATE_LIMIT_PER_MINUTE', 30),
+    ],
 ];
