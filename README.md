@@ -59,3 +59,11 @@ XMCP_PUBLIC_ISSUANCE_API_BASE_URL=https://your-host.example/api/x/v1/public-issu
 Its discovery document is `/.well-known/x-change-public-mcp`. Native financial
 mutations remain unavailable until a separately governed guest authorization
 contract exists.
+
+The canonical URL, API, and Voucher-instruction parameter contract belongs to
+x-change. See the
+[Public AI Issuance Integration Guide](https://github.com/3neti/x-change/blob/main/docs/architecture/public-ai-issuance/PUBLIC_AI_ISSUANCE_INTEGRATION_GUIDE.md).
+In particular, the
+browser accepts `amount` and `currency`, while the API and MCP tools accept
+`amount_minor` and `currency`; arbitrary Voucher instructions are not public
+query parameters.
