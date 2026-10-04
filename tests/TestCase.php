@@ -29,6 +29,6 @@ abstract class TestCase extends Orchestra
         $app['config']->set('x-mcp.connect_timeout_seconds', 5);
         $app['config']->set('x-mcp.request_timeout_seconds', 30);
         $app['config']->set('x-mcp.read_retry_delays_ms', []);
-        $app['config']->set('x-mcp.expected_partner_contract_version', '1.0.0');
+        $app['config']->set('x-mcp.expected_partner_contract_version', '1.4.0');
     }
 }

@@ -20,7 +20,7 @@ it('fails closed when the MCP endpoint is not commissioned', function () {
 it('reports a ready sanitized local configuration', function () {
     config()->set('x-mcp.enabled', true);
     config()->set('x-mcp.api_base_url', 'https://partner.example.test/api/partner/v1');
-    config()->set('x-mcp.expected_partner_contract_version', '1.0.0');
+    config()->set('x-mcp.expected_partner_contract_version', '1.4.0');
     config()->set('x-mcp.endpoint', '/mcp/x-change');
 
     expect(Artisan::call('x-mcp:doctor', ['--json' => true]))->toBe(0);

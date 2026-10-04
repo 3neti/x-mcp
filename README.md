@@ -17,7 +17,7 @@ XMCP_ENABLED=true
 XMCP_PUBLIC_DISCOVERY_ENABLED=true
 XMCP_API_BASE_URL=https://your-host.example/api/partner/v1
 XMCP_ACCESS_CONTACT=api-access@example.test
-XMCP_EXPECTED_PARTNER_CONTRACT_VERSION=1.0.0
+XMCP_EXPECTED_PARTNER_CONTRACT_VERSION=1.4.0
 ```
 
 Confirm local commissioning before connecting an AI client:

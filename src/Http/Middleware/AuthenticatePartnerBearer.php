@@ -46,7 +46,11 @@ class AuthenticatePartnerBearer
         $expectedVersion = trim((string) config('x-mcp.expected_partner_contract_version'));
         $actualVersion = (string) data_get($capabilities, 'data.contract.version');
 
-        if ($expectedVersion !== '' && $actualVersion !== $expectedVersion) {
+        if ($expectedVersion === '') {
+            throw new LogicException('The expected Partner API contract version is not configured.');
+        }
+
+        if ($actualVersion !== $expectedVersion) {
             throw new LogicException('The configured Partner API contract version is not compatible with X-MCP.');
         }
 

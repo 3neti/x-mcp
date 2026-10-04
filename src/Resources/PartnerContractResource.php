@@ -21,7 +21,7 @@ class PartnerContractResource extends Resource
     public function handle(Request $request): Response
     {
         return Response::json([
-            'version' => (string) config('x-mcp.expected_partner_contract_version', '1.0.0'),
+            'version' => (string) config('x-mcp.expected_partner_contract_version'),
             'money' => [
                 'instructions' => 'major_units',
                 'status_resources' => 'integer_minor_units',

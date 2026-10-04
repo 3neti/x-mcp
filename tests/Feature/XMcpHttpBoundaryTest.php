@@ -39,3 +39,19 @@ it('fails closed when the Partner API contract version drifts', function () {
 
     $this->withToken('partner-token')->postJson('/mcp/x-change', [])->assertServerError();
 });
+
+it('fails closed when no expected Partner API contract version is configured', function () {
+    config()->set('x-mcp.expected_partner_contract_version', null);
+
+    Http::fake([
+        'https://partner.example.test/api/partner/v1/capabilities' => Http::response([
+            'success' => true,
+            'data' => [
+                'contract' => ['version' => '1.4.0', 'sha256' => 'contract-hash'],
+                'operations' => ['capabilities:read'],
+            ],
+        ]),
+    ]);
+
+    $this->withToken('partner-token')->postJson('/mcp/x-change', [])->assertServerError();
+});
