@@ -12,7 +12,9 @@ use LBHurtado\XMcp\Resources\OperatingGuideResource;
 use LBHurtado\XMcp\Resources\PartnerContractResource;
 use LBHurtado\XMcp\Resources\SafetyModelResource;
 use LBHurtado\XMcp\Tools\CancelPayCodeTool;
+use LBHurtado\XMcp\Tools\CreateFundedOrderTool;
 use LBHurtado\XMcp\Tools\EstimatePayCodeTool;
+use LBHurtado\XMcp\Tools\GetFundedOrderTool;
 use LBHurtado\XMcp\Tools\GetPayCodeTool;
 use LBHurtado\XMcp\Tools\InspectCapabilitiesTool;
 use LBHurtado\XMcp\Tools\IssuePayCodeTool;
@@ -28,6 +30,8 @@ class XChangePartnerServer extends Server
         IssuePayCodeTool::class,
         GetPayCodeTool::class,
         CancelPayCodeTool::class,
+        CreateFundedOrderTool::class,
+        GetFundedOrderTool::class,
     ];
 
     protected array $resources = [

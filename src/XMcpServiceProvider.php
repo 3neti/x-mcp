@@ -92,6 +92,8 @@ class XMcpServiceProvider extends ServiceProvider
                         'issue_pay_code',
                         'get_pay_code',
                         'cancel_pay_code',
+                        'create_funded_order',
+                        'get_funded_order',
                     ],
                     'access_contact' => config('x-mcp.access_contact'),
                 ];
@@ -107,6 +109,12 @@ class XMcpServiceProvider extends ServiceProvider
                     'authentication' => ['type' => 'none'],
                     'available' => (bool) config('x-mcp.public_issuance.enabled', false),
                     'read_only' => true,
+                    'approved_app_api' => [
+                        'discovery' => url('/.well-known/x-change-partner-api'),
+                        'openapi' => url('/api/partner/openapi.json'),
+                        'authentication' => 'oauth2_client_credentials_bearer',
+                        'tools' => ['create_funded_order', 'get_funded_order'],
+                    ],
                     'tools' => [
                         'discover_on_demand_issuance',
                         'estimate_on_demand_pay_code',

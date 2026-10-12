@@ -47,7 +47,7 @@ it('fails closed when no expected Partner API contract version is configured', f
         'https://partner.example.test/api/partner/v1/capabilities' => Http::response([
             'success' => true,
             'data' => [
-                'contract' => ['version' => '1.4.0', 'sha256' => 'contract-hash'],
+                'contract' => ['version' => '1.5.0', 'sha256' => 'contract-hash'],
                 'operations' => ['capabilities:read'],
             ],
         ]),

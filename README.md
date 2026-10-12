@@ -17,7 +17,7 @@ XMCP_ENABLED=true
 XMCP_PUBLIC_DISCOVERY_ENABLED=true
 XMCP_API_BASE_URL=https://your-host.example/api/partner/v1
 XMCP_ACCESS_CONTACT=api-access@example.test
-XMCP_EXPECTED_PARTNER_CONTRACT_VERSION=1.4.0
+XMCP_EXPECTED_PARTNER_CONTRACT_VERSION=1.5.0
 ```
 
 Confirm local commissioning before connecting an AI client:
@@ -35,8 +35,10 @@ The MCP client sends the same short-lived OAuth client-credentials bearer token 
 - `issue_pay_code`
 - `get_pay_code`
 - `cancel_pay_code`
+- `create_funded_order`
+- `get_funded_order`
 
-Issuance and cancellation require explicit confirmation and caller-supplied stable idempotency keys. Partner API ownership, funds, Treasury, pricing, scope, and mandate controls remain authoritative.
+Issuance, cancellation, and funded-order creation require explicit confirmation and caller-supplied stable idempotency keys. The funded-order tools require separate scopes and use customer payment under the commissioned Commercial Principal. Partner API ownership, payment verification, Treasury, pricing, scope, and mandate controls remain authoritative.
 
 There is no self-service OAuth client registration.
 
@@ -57,8 +59,7 @@ XMCP_PUBLIC_ISSUANCE_API_BASE_URL=https://your-host.example/api/x/v1/public-issu
 ```
 
 Its discovery document is `/.well-known/x-change-public-mcp`. Native financial
-mutations remain unavailable until a separately governed guest authorization
-contract exists.
+mutations require a separately approved Partner OAuth client and use the authenticated `/mcp/x-change` server.
 
 The canonical URL, API, and Voucher-instruction parameter contract belongs to
 x-change. See the

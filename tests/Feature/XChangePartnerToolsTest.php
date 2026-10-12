@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Http;
 use LBHurtado\XMcp\Servers\XChangePartnerServer;
 use LBHurtado\XMcp\Services\PartnerBearerTokenContext;
 use LBHurtado\XMcp\Tools\CancelPayCodeTool;
+use LBHurtado\XMcp\Tools\CreateFundedOrderTool;
 use LBHurtado\XMcp\Tools\EstimatePayCodeTool;
+use LBHurtado\XMcp\Tools\GetFundedOrderTool;
 use LBHurtado\XMcp\Tools\GetPayCodeTool;
 use LBHurtado\XMcp\Tools\InspectCapabilitiesTool;
 use LBHurtado\XMcp\Tools\IssuePayCodeTool;
@@ -150,4 +152,56 @@ it('cancels through the idempotent Partner API endpoint only after confirmation'
     Http::assertSent(fn (Request $request): bool => $request->data() === [
         'reason' => 'Recipient request withdrawn.',
     ] && $request->hasHeader('Idempotency-Key', 'mcp-cancel-001'));
+});
+
+it('creates a funded order through the client-bound Partner API', function () {
+    authenticateMcpContext(['funded-orders:create']);
+    Http::fake([
+        'https://partner.example.test/api/partner/v1/funded-orders' => Http::response([
+            'success' => true,
+            'data' => ['reference' => '01M4P000000000000000000000', 'status' => 'awaiting_payment'],
+        ], 201),
+    ]);
+
+    XChangePartnerServer::tool(CreateFundedOrderTool::class, [
+        'pay_code' => mcpPayCode(),
+        'funding_method' => 'bank_transfer',
+        'payer_mobile' => '09175180722',
+        'confirm_order' => true,
+        'idempotency_key' => 'funded-001',
+    ])->assertOk()->assertSee('awaiting_payment');
+
+    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'funded-001')
+        && data_get($request->data(), 'funding_method') === 'bank_transfer'
+        && data_get($request->data(), 'payer_mobile') === '09175180722');
+});
+
+it('does not create a funded order without confirmation', function () {
+    authenticateMcpContext(['funded-orders:create']);
+
+    XChangePartnerServer::tool(CreateFundedOrderTool::class, [
+        'pay_code' => mcpPayCode(),
+        'funding_method' => 'qr_ph',
+        'confirm_order' => false,
+        'idempotency_key' => 'funded-002',
+    ])->assertHasErrors();
+
+    Http::assertNothingSent();
+});
+
+it('polls only through the authenticated funded-order endpoint', function () {
+    authenticateMcpContext(['funded-orders:read']);
+    $reference = '01M4P000000000000000000000';
+    Http::fake([
+        'https://partner.example.test/api/partner/v1/funded-orders/'.$reference => Http::response([
+            'success' => true,
+            'data' => ['reference' => $reference, 'status' => 'issued', 'pay_code' => ['claim_url' => 'https://example.test/x/claim/TEST']],
+        ]),
+    ]);
+
+    XChangePartnerServer::tool(GetFundedOrderTool::class, ['reference' => $reference])
+        ->assertOk()->assertSee('claim_url');
+
+    Http::assertSent(fn (Request $request): bool => $request->method() === 'GET'
+        && $request->hasHeader('Authorization', 'Bearer partner-token'));
 });
