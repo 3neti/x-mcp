@@ -43,7 +43,7 @@ trait DefinesPayCodeSchema
     /** @return array<string, mixed> */
     protected function validatedPayCode(array $arguments): array
     {
-        return validator($arguments, [
+        $payCode = validator($arguments, [
             'pay_code' => ['required', 'array'],
             'pay_code.cash' => ['required', 'array'],
             'pay_code.cash.amount' => ['required', 'numeric', 'gt:0'],
@@ -54,7 +54,7 @@ trait DefinesPayCodeSchema
             'pay_code.cash.validation.payable' => ['nullable', 'string', 'max:120'],
             'pay_code.cash.validation.secret' => ['nullable', 'string', 'max:255'],
             'pay_code.inputs' => ['required', 'array'],
-            'pay_code.inputs.fields' => ['required', 'array'],
+            'pay_code.inputs.fields' => ['present', 'array'],
             'pay_code.inputs.fields.*' => ['string', 'max:80'],
             'pay_code.feedback' => ['required', 'array'],
             'pay_code.feedback.email' => ['nullable', 'email'],
@@ -67,5 +67,9 @@ trait DefinesPayCodeSchema
             'pay_code.count' => ['nullable', 'integer', 'min:1'],
             'pay_code.ttl' => ['nullable'],
         ])->validate()['pay_code'];
+
+        $payCode['count'] ??= 1;
+
+        return $payCode;
     }
 }

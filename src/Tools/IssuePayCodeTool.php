@@ -38,6 +38,7 @@ class IssuePayCodeTool extends Tool
     {
         return [
             'pay_code' => $this->payCodeSchema($schema),
+            'external_reference' => $schema->string()->description('Stable business reference for this Pay Code.')->required(),
             'confirm_issue' => $schema->boolean()->description('Must be true after the caller reviews the amount and estimated cost.')->required(),
             'idempotency_key' => $schema->string()->description('Stable key reused only for the same logical issuance.')->required(),
             'correlation_id' => $schema->string()->nullable(),
@@ -53,12 +54,14 @@ class IssuePayCodeTool extends Tool
     {
         $validated = $request->validate([
             'confirm_issue' => ['required', 'accepted'],
+            'external_reference' => ['required', 'string', 'max:190', 'regex:/^[A-Za-z0-9_.:-]+$/'],
             'idempotency_key' => ['required', 'string', 'max:160'],
             'correlation_id' => ['nullable', 'string', 'max:160'],
         ], [
             'confirm_issue.accepted' => 'Review the amount and estimated cost, then explicitly confirm issuance.',
         ]);
         $payload = $this->validatedPayCode($request->all());
+        $payload['external_reference'] = $validated['external_reference'];
         $headers = ['Idempotency-Key' => $validated['idempotency_key']];
 
         if (filled($validated['correlation_id'] ?? null)) {
