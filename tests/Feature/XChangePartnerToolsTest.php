@@ -88,12 +88,14 @@ it('requires confirmation and forwards stable mutation headers for issuance', fu
 
     XChangePartnerServer::tool(IssuePayCodeTool::class, [
         'pay_code' => mcpPayCode(),
+        'external_reference' => 'invoice-123',
         'confirm_issue' => true,
         'idempotency_key' => 'mcp-issue-001',
         'correlation_id' => 'mcp-run-001',
     ])->assertOk()->assertSee('MCP1');
 
-    Http::assertSent(fn (Request $request): bool => $request->hasHeader('Idempotency-Key', 'mcp-issue-001')
+    Http::assertSent(fn (Request $request): bool => data_get($request->data(), 'external_reference') === 'invoice-123'
+        && $request->hasHeader('Idempotency-Key', 'mcp-issue-001')
         && $request->hasHeader('X-Correlation-ID', 'mcp-run-001'));
 });
 
@@ -102,11 +104,39 @@ it('requires explicit confirmation before issuing', function () {
 
     XChangePartnerServer::tool(IssuePayCodeTool::class, [
         'pay_code' => mcpPayCode(),
+        'external_reference' => 'invoice-123',
         'confirm_issue' => false,
         'idempotency_key' => 'mcp-issue-002',
     ])->assertHasErrors();
 
     Http::assertNothingSent();
+});
+
+it('rejects missing or invalid external references without contacting the API', function (?string $reference): void {
+    authenticateMcpContext(['pay-codes:issue']);
+    XChangePartnerServer::tool(IssuePayCodeTool::class, [
+        'pay_code' => mcpPayCode(),
+        'external_reference' => $reference,
+        'confirm_issue' => true,
+        'idempotency_key' => 'mcp-issue-003',
+    ])->assertHasErrors();
+    Http::assertNothingSent();
+})->with([null, '', 'invalid reference', str_repeat('x', 191)]);
+
+it('supplies the default count and allows an empty claim field list', function (): void {
+    authenticateMcpContext(['pay-codes:issue']);
+    Http::fake(['https://partner.example.test/api/partner/v1/pay-codes' => Http::response(['success' => true, 'data' => ['code' => 'MCP2']], 201)]);
+    $payCode = mcpPayCode();
+    unset($payCode['count']);
+    $payCode['inputs']['fields'] = [];
+
+    XChangePartnerServer::tool(IssuePayCodeTool::class, [
+        'pay_code' => $payCode, 'external_reference' => 'invoice-124',
+        'confirm_issue' => true, 'idempotency_key' => 'mcp-issue-004',
+    ])->assertOk();
+
+    Http::assertSent(fn (Request $request): bool => data_get($request->data(), 'count') === 1
+        && data_get($request->data(), 'inputs.fields') === []);
 });
 
 it('reads only the sanitized Pay Code representation from the Partner API', function () {
